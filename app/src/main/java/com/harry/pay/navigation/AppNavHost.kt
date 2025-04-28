@@ -28,9 +28,11 @@ fun AppNavHost(
         composable(ROUT_ABOUT) {
             AboutScreen(navController)
         }
-        composable(ROUT_ABOUT) {
+        composable(ROUT_PROFILE) {
             AboutScreen(navController)
         }
-
+        composable(ROUT_CREATE) {
+            //CreateLinkScreen(navController)
+        }
     }
 }

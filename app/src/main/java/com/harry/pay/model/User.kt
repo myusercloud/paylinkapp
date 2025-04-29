@@ -6,8 +6,12 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "users")
 data class User(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val username: String,
+    val name: String,
     val email: String,
-    val password: String,
-    val role: String // "admin" or "user"
+    val phoneNumber: String,
+    val password: String, // Must be 4 digits
+    val businessName: String,
+    val profilePictureUri: String // URI to profile picture
 )
+
+

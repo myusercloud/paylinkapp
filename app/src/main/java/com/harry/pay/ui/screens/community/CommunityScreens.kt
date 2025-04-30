@@ -1,9 +1,7 @@
 package com.harry.pay.ui.screens.community
 
-import androidx.compose.foundation.clickable
-import androidx.compose.ui.draw.clip
-import androidx.navigation.compose.rememberNavController
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -11,14 +9,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.harry.pay.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 
 @Composable
 fun CommunityCirclesScreen(navController: NavController) {
@@ -42,11 +41,16 @@ fun CommunityCirclesScreen(navController: NavController) {
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        // LazyColumn to display the list of community circles
-        LazyColumn {
-            items(communityCircles.size) { index ->
-                val circle = communityCircles[index]
-                CommunityCircleCard(communityCircle = circle, navController = navController)
+        // Handle empty list case
+        if (communityCircles.isEmpty()) {
+            Text("No community circles available", style = MaterialTheme.typography.bodyLarge)
+        } else {
+            // LazyColumn to display the list of community circles
+            LazyColumn {
+                items(communityCircles.size) { index ->
+                    val circle = communityCircles[index]
+                    CommunityCircleCard(communityCircle = circle, navController = navController)
+                }
             }
         }
     }
@@ -63,7 +67,7 @@ fun CommunityCircleCard(communityCircle: CommunityCircle, navController: NavCont
                 // Navigate to the community details screen (you can pass more info if needed)
                 navController.navigate("community_details_screen/${communityCircle.name}")
             },
-        shape = MaterialTheme.shapes.medium
+        shape = MaterialTheme.shapes.medium,
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -97,7 +101,6 @@ fun CommunityCircleCard(communityCircle: CommunityCircle, navController: NavCont
         }
     }
 }
-
 
 data class CommunityCircle(val name: String, val description: String, val iconRes: Int)
 

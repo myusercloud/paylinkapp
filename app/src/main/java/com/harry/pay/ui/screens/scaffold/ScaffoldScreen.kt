@@ -24,14 +24,14 @@ import com.harry.pay.ui.screens.profile.ProfileScreen
 
 @Composable
 fun ScaffoldScreen(navController: NavController, currentUser: User)
- {
+{
     var selectedIndex by remember { mutableStateOf(0) }
 
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { /* TODO: Navigate to Create Link screen */ },
-                containerColor = MaterialTheme.colorScheme.primary
+                containerColor = MaterialTheme.colorScheme.onSecondary
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
             }
@@ -143,7 +143,7 @@ fun LinkItem(name: String, description: String, amount: String, date: String) {
 fun ScaffoldScreenPreview() {
     val dummyUser = User(
         id = 1,
-        name = "Preview User",
+        name = "Harry",
         email = "preview@example.com",
         phoneNumber = "1234567890",
         password = "password",
@@ -153,4 +153,3 @@ fun ScaffoldScreenPreview() {
 
     ScaffoldScreen(navController = rememberNavController(), currentUser = dummyUser)
 }
-

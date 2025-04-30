@@ -1,5 +1,7 @@
 package com.harry.pay.navigation
 
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
@@ -24,8 +26,6 @@ import androidx.compose.runtime.collectAsState
 import com.harry.pay.ui.screens.home.HomeScreen
 import com.harry.pay.model.User
 
-
-
 @Composable
 fun AppNavHost(
     modifier: Modifier = Modifier,
@@ -40,7 +40,6 @@ fun AppNavHost(
     val authRepository = UserRepository(appDatabase.userDao())
     val authViewModelFactory = AuthViewModelFactory(authRepository)
 
-
     // ✅ NavHost setup
     NavHost(
         navController = navController,
@@ -48,14 +47,31 @@ fun AppNavHost(
         modifier = modifier
     ) {
         composable(ROUT_SCAFFOLD) {
-            ScaffoldScreen(navController)
-        }
-        composable(ROUT_HOME) {
             val authViewModel: AuthViewModel = viewModel(factory = authViewModelFactory)
             val userState by authViewModel.user.collectAsState()
 
             userState?.let { currentUser ->
-                HomeScreen(navController = navController, currentUser = currentUser)
+                ScaffoldScreen(navController = navController, currentUser = currentUser)
+            }
+        }
+
+        composable(ROUT_HOME) {
+            val authViewModel: AuthViewModel = viewModel(factory = authViewModelFactory)
+            val userState by authViewModel.user.collectAsState()
+            val isLoading by authViewModel.isLoading.collectAsState()
+            val errorState by authViewModel.error.collectAsState()
+
+            if (isLoading) {
+                // Show loading indicator
+                CircularProgressIndicator()
+            } else if (errorState != null) {
+                // Handle error state
+                Text(text = "Error: ${errorState}")
+            } else {
+                // Show HomeScreen once the user data is available
+                userState?.let { currentUser ->
+                    HomeScreen(navController = navController, currentUser = currentUser)
+                }
             }
         }
         composable(ROUT_ABOUT) {

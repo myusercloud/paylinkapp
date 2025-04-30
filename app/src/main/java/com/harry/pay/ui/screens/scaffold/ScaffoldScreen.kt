@@ -1,9 +1,6 @@
 package com.harry.pay.ui.screens.scaffold
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
@@ -17,16 +14,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.harry.pay.model.User
 import com.harry.pay.ui.screens.community.CommunityCirclesScreen
-import com.harry.pay.ui.screens.createlink.CreateLinkScreen
+import com.harry.pay.ui.screens.link.CreateLinkScreen
 import com.harry.pay.ui.screens.home.HomeScreen
 import com.harry.pay.ui.screens.profile.ProfileScreen
 
 @Composable
-fun ScaffoldScreen(navController: NavController) {
+fun ScaffoldScreen(navController: NavController, currentUser: User)
+ {
     var selectedIndex by remember { mutableStateOf(0) }
 
     Scaffold(
@@ -77,8 +75,15 @@ fun ScaffoldScreen(navController: NavController) {
                     .fillMaxSize()
             ) {
                 when (selectedIndex) {
-                    0 -> HomeScreen(navController = navController)
-                    1 -> CreateLinkScreen(navController = navController)
+                    0 -> HomeScreen(navController = navController, currentUser = currentUser)
+                    1 -> CreateLinkScreen(
+                        navController = navController,
+                        onCreate = { paymentLink ->
+                            // Handle the PaymentLink object, e.g.:
+                            println("Created link: $paymentLink")
+                            // Or maybe navigate or save it somewhere
+                        }
+                    )
                     2 -> CommunityCirclesScreen(navController = navController)
                     3 -> ProfileScreen(navController = navController, userId = 1)
 
@@ -136,5 +141,16 @@ fun LinkItem(name: String, description: String, amount: String, date: String) {
 @Preview(showBackground = true)
 @Composable
 fun ScaffoldScreenPreview() {
-    ScaffoldScreen(navController = rememberNavController())
+    val dummyUser = User(
+        id = 1,
+        name = "Preview User",
+        email = "preview@example.com",
+        phoneNumber = "1234567890",
+        password = "password",
+        businessName = "Preview Co",
+        profilePictureUri = ""
+    )
+
+    ScaffoldScreen(navController = rememberNavController(), currentUser = dummyUser)
 }
+

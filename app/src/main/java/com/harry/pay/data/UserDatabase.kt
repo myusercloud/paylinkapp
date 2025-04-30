@@ -1,15 +1,16 @@
 package com.harry.pay.data
 
-
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.harry.pay.model.User
+import com.harry.pay.model.PaymentLink // Ensure you import PaymentLink
 
-@Database(entities = [User::class], version = 2, exportSchema = false)
+@Database(entities = [User::class, PaymentLink::class], version = 2, exportSchema = false)
 abstract class UserDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
+    abstract fun paymentLinkDao(): PaymentLinkDao // Add the PaymentLinkDao method
 
     companion object {
         @Volatile

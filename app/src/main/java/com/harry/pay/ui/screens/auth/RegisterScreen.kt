@@ -243,6 +243,10 @@ fun RegisterScreenPreview() {
         override suspend fun loginUser(name: String, password: String): User? = null
         override suspend fun updateUser(user: User) {}
         override suspend fun deleteUser(user: User) {}
+        override suspend fun deleteUserById(userId: Int) {
+            TODO("Not yet implemented")
+        }
+
         override suspend fun getUserById(id: Int): User? = null
     }
     val dummyRepo = UserRepository(dummyDao)

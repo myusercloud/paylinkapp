@@ -38,7 +38,7 @@ fun ScaffoldScreen(navController: NavController) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
             }
         },
-        floatingActionButtonPosition = FabPosition.Center,
+        floatingActionButtonPosition = FabPosition.End,
         bottomBar = {
             NavigationBar(
                 containerColor = Color.Gray,

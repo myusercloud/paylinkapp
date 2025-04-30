@@ -19,4 +19,10 @@ class ProfileViewModel(private val userRepository: UserRepository) : ViewModel()
             _userProfile.value = user
         }
     }
+    fun deleteUserProfile(userId: Int) {
+        viewModelScope.launch {
+            userRepository.deleteUserById(userId)
+        }
+    }
+
 }

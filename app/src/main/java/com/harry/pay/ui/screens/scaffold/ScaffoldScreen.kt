@@ -80,7 +80,7 @@ fun ScaffoldScreen(navController: NavController) {
                     0 -> HomeScreen(navController = navController)
                     1 -> CreateLinkScreen(navController = navController)
                     2 -> CommunityCirclesScreen(navController = navController)
-                    3 -> ProfileScreen(navController = navController)
+                    3 -> ProfileScreen(navController = navController, userId = 1)
 
                 }
             }

@@ -1,6 +1,5 @@
 package com.harry.pay.navigation
 
-import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -14,7 +13,6 @@ import com.harry.pay.repository.UserRepository
 import com.harry.pay.ui.screens.RegisterScreen
 import com.harry.pay.ui.screens.about.AboutScreen
 import com.harry.pay.ui.screens.auth.LoginScreen
-import com.harry.pay.ui.screens.home.HomeScreen
 import com.harry.pay.ui.screens.scaffold.ScaffoldScreen
 import com.harry.pay.ui.screens.splash.SplashScreen
 import com.harry.pay.viewmodel.AuthViewModel
@@ -24,7 +22,7 @@ import com.harry.pay.viewmodel.AuthViewModelFactory
 fun AppNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    startDestination: String = ROUT_HOME
+    startDestination: String = ROUT_REGISTER
 ) {
     // ✅ Get context for Room database
     val context = LocalContext.current
@@ -52,9 +50,6 @@ fun AppNavHost(
         composable(ROUT_CREATE) {
             //CreateLinkScreen(navController)
         }
-        composable(ROUT_SPLASH) {
-            SplashScreen(navController)
-        }
 
         // ✅ Register Screen
         composable(ROUT_REGISTER) {
@@ -69,11 +64,15 @@ fun AppNavHost(
         // ✅ Login Screen
         composable(ROUT_LOGIN) {
             val authViewModel: AuthViewModel = viewModel(factory = authViewModelFactory)
-            LoginScreen(authViewModel, navController) {
-                navController.navigate(ROUT_HOME) {
-                    popUpTo(ROUT_LOGIN) { inclusive = true }
+            LoginScreen(
+                onLogin = { username, password -> authViewModel.loginUser(username, password) },
+                navController = navController,
+                onSuccess = {
+                    navController.navigate(ROUT_HOME) {
+                        popUpTo(ROUT_LOGIN) { inclusive = true }
+                    }
                 }
-            }
+            )
         }
     }
 }

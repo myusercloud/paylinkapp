@@ -5,13 +5,21 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.harry.pay.navigation.ROUT_HOME
+import com.harry.pay.navigation.ROUT_LOGIN
 
 @Composable
-fun LoginScreen(onLogin: (String, String) -> Unit) {
+fun LoginScreen(
+    onLogin: (String, String) -> Unit,
+    navController: NavHostController,
+    onSuccess: () -> Unit
+) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
@@ -30,7 +38,6 @@ fun LoginScreen(onLogin: (String, String) -> Unit) {
             modifier = Modifier.padding(bottom = 32.dp)
         )
 
-        // Username input field
         OutlinedTextField(
             value = username,
             onValueChange = { username = it },
@@ -41,7 +48,6 @@ fun LoginScreen(onLogin: (String, String) -> Unit) {
             singleLine = true
         )
 
-        // Password input field
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
@@ -53,7 +59,6 @@ fun LoginScreen(onLogin: (String, String) -> Unit) {
             singleLine = true
         )
 
-        // Error message
         if (errorMessage.isNotEmpty()) {
             Text(
                 text = errorMessage,
@@ -63,7 +68,6 @@ fun LoginScreen(onLogin: (String, String) -> Unit) {
             )
         }
 
-        // Login button
         Button(
             onClick = {
                 if (username.isBlank() || password.isBlank()) {
@@ -72,6 +76,8 @@ fun LoginScreen(onLogin: (String, String) -> Unit) {
                     isLoading = true
                     errorMessage = ""
                     onLogin(username, password)
+                    isLoading = false
+                    onSuccess()
                 }
             },
             modifier = Modifier
@@ -95,7 +101,17 @@ fun LoginScreen(onLogin: (String, String) -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun PreviewLoginScreen() {
-    LoginScreen(onLogin = { username, password ->
-        println("Login attempt with username: $username and password: $password")
-    })
+    val navController = rememberNavController()
+    LoginScreen(
+        onLogin = { username, password ->
+            println("Preview login with username: $username and password: $password")
+        },
+        navController = navController,
+        onSuccess = {
+            // In real use, you'd navigate like:
+            navController.navigate(ROUT_HOME) {
+                popUpTo(ROUT_LOGIN) { inclusive = true }
+            }
+        }
+    )
 }

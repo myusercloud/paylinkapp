@@ -32,6 +32,8 @@ import com.harry.pay.model.User
 import com.harry.pay.viewmodel.AuthViewModel
 import com.harry.pay.repository.UserRepository
 import com.harry.pay.data.UserDao
+import com.harry.pay.navigation.ROUT_LOGIN
+import com.harry.pay.navigation.ROUT_REGISTER
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -222,7 +224,11 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        TextButton(onClick = { navController.popBackStack() }) {
+        TextButton(onClick = {
+            navController.navigate(ROUT_LOGIN) {
+                popUpTo(ROUT_REGISTER) { inclusive = true }
+            }
+        }) {
             Text("Already have an account? Login")
         }
     }
@@ -242,3 +248,4 @@ fun RegisterScreenPreview() {
     val dummyRepo = UserRepository(dummyDao)
     RegisterScreen(authViewModel = AuthViewModel(dummyRepo), navController = navController) {}
 }
+

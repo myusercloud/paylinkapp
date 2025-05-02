@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.harry.pay.model.PaymentLink
+import com.harry.pay.navigation.ROUT_SCAFFOLD
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -27,8 +28,14 @@ fun CreateLinkScreen(
     val scope = rememberCoroutineScope()
 
     // Link Preview is updated whenever title, description, or amount changes
-    LaunchedEffect(title, description, amount) {
-        linkPreview = "https://paylink.app/${UUID.randomUUID()}"
+    LaunchedEffect(title, amount) {
+        val sanitizedTitle = title.trim().replace("\\s+".toRegex(), "-")
+        val sanitizedAmount = amount.trim()
+        linkPreview = if (sanitizedTitle.isNotEmpty() && sanitizedAmount.isNotEmpty()) {
+            "https://paylink.app/$sanitizedTitle/$sanitizedAmount"
+        } else {
+            ""
+        }
     }
 
     Column(
@@ -36,6 +43,7 @@ fun CreateLinkScreen(
             .fillMaxSize()
             .padding(16.dp)
     ) {
+        Spacer(modifier = Modifier.height(16.dp))
         Text(text = "Create Payment Link", style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -44,12 +52,8 @@ fun CreateLinkScreen(
             value = title,
             onValueChange = { title = it },
             label = { Text("Title") },
-            modifier = Modifier.fillMaxWidth(),
-            isError = title.isEmpty()
+            modifier = Modifier.fillMaxWidth()
         )
-        if (title.isEmpty()) {
-            Text("Title is required", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -58,12 +62,8 @@ fun CreateLinkScreen(
             value = description,
             onValueChange = { description = it },
             label = { Text("Description") },
-            modifier = Modifier.fillMaxWidth(),
-            isError = description.isEmpty()
+            modifier = Modifier.fillMaxWidth()
         )
-        if (description.isEmpty()) {
-            Text("Description is required", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -79,11 +79,7 @@ fun CreateLinkScreen(
             label = { Text("Amount") },
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth(),
-            isError = amount.isEmpty() || amount.toDoubleOrNull() == null || amount.toDouble() <= 0
         )
-        if (amount.isEmpty() || amount.toDoubleOrNull() == null || amount.toDouble() <= 0) {
-            Text("Enter a valid amount", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -107,7 +103,7 @@ fun CreateLinkScreen(
                         link = linkPreview
                     )
                     onCreate(link)
-                    navController.popBackStack()
+                    navController.navigate(ROUT_SCAFFOLD)
                 }
             },
             modifier = Modifier.fillMaxWidth(),

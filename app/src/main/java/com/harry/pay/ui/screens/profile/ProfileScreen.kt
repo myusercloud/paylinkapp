@@ -33,6 +33,10 @@ import com.harry.pay.repository.UserRepository
 import com.harry.pay.viewmodel.ProfileViewModel
 import com.harry.pay.viewmodel.ProfileViewModelFactory
 import com.harry.pay.data.UserDatabase
+import com.harry.pay.navigation.ROUT_EDIT
+import com.harry.pay.navigation.ROUT_LOGIN
+import com.harry.pay.navigation.ROUT_REGISTER
+
 @Composable
 fun ProfileScreen(navController: NavController, userId: Int) {
     val context = LocalContext.current
@@ -118,7 +122,7 @@ fun ProfileScreen(navController: NavController, userId: Int) {
 
             Column {
                 Button(
-                    onClick = { navController.navigate("edit_profile_screen") },
+                    onClick = { navController.navigate(ROUT_EDIT) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = MaterialTheme.shapes.medium
                 ) {
@@ -130,9 +134,9 @@ fun ProfileScreen(navController: NavController, userId: Int) {
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Button(
-                    onClick = { navController.navigate("login_screen") },
+                    onClick = { navController.navigate(ROUT_LOGIN) },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE53935)),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8D5553)),
                     shape = MaterialTheme.shapes.medium
                 ) {
                     Icon(Icons.Default.ExitToApp, contentDescription = "Logout", tint = Color.White)
@@ -165,7 +169,7 @@ fun ProfileScreen(navController: NavController, userId: Int) {
                         onClick = {
                             profileViewModel.deleteUserProfile(user!!.id)
                             showDeleteDialog = false
-                            navController.navigate("register_screen") {
+                            navController.navigate(ROUT_REGISTER) {
                                 popUpTo(0) { inclusive = true }
                             }
                         }

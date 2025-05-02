@@ -4,17 +4,13 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.system.Os.link
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,8 +27,10 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.SubcomposeAsyncImage
 import com.harry.pay.R
+import com.harry.pay.model.PaymentLink
 import com.harry.pay.model.User
 import com.harry.pay.navigation.ROUT_CREATE_LINK
+import com.harry.pay.navigation.ROUT_PROFILE
 import com.harry.pay.ui.screens.scaffold.FilterChip
 import com.harry.pay.ui.screens.scaffold.LinkItem
 
@@ -40,7 +38,11 @@ val FintechTeal = Color(0xFF039D86)
 val FintechDarkTeal = Color(0xFF00695C)
 
 @Composable
-fun HomeScreen(navController: NavController, currentUser: User) {
+fun HomeScreen(
+    navController: NavController,
+    currentUser: User,
+    paymentLinks: List<PaymentLink>
+) {
     val context = LocalContext.current
 
     Column(
@@ -119,7 +121,7 @@ fun HomeScreen(navController: NavController, currentUser: User) {
         Spacer(modifier = Modifier.height(12.dp))
 
         Button(
-            onClick = { /* Navigate to Communities */ },
+            onClick = { navController.navigate(ROUT_CREATE_LINK) },
             modifier = Modifier.fillMaxWidth(),
             shape = MaterialTheme.shapes.medium,
             colors = ButtonDefaults.buttonColors(containerColor = FintechTeal)
@@ -129,19 +131,10 @@ fun HomeScreen(navController: NavController, currentUser: User) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        Button(
-            onClick = { /* Navigate to Payment History */ },
-            modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.medium,
-            colors = ButtonDefaults.buttonColors(containerColor = FintechTeal)
-        ) {
-            Text("Payment History", color = Color.White)
-        }
 
-        Spacer(modifier = Modifier.height(12.dp))
 
         Button(
-            onClick = { /* Navigate to User Profile */ },
+            onClick = { navController.navigate(ROUT_PROFILE)},
             modifier = Modifier.fillMaxWidth(),
             shape = MaterialTheme.shapes.medium,
             colors = ButtonDefaults.buttonColors(containerColor = FintechTeal)
@@ -170,9 +163,7 @@ fun HomeScreen(navController: NavController, currentUser: User) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        listOf(1, 2, 3).forEach { linkId ->
-            val linkUrl = "https://paylink.com/recipient/$linkId"
-
+        paymentLinks.forEach { link ->
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -187,21 +178,21 @@ fun HomeScreen(navController: NavController, currentUser: User) {
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         LinkItem(
-                            name = "Recipient $linkId",
-                            description = "Description for Link $linkId",
-                            amount = "£${linkId * 10}",
-                            date = "2025-04-30",
-                            onEdit = { navController.navigate("edit_link/$linkId") },
-                            onDelete = { println("Delete link with ID: $linkId") },
+                            name = "Recipient name: ${link.title}",
+                            description = link.description,
+                            amount = "Ksh. ${link.amount}",
+                            date = "2025-04-30", // Replace with actual date if available
+                            onEdit = { navController.navigate("edit_link/${link.title}") },
+                            onDelete = { println("Delete link: ${link.title}") },
                             onCopy = {
                                 val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                val clip = ClipData.newPlainText("Copied Link", linkUrl)
+                                val clip = ClipData.newPlainText("Copied Link", link.link)
                                 clipboard.setPrimaryClip(clip)
                             },
                             onShare = {
                                 val sendIntent = Intent().apply {
                                     action = Intent.ACTION_SEND
-                                    putExtra(Intent.EXTRA_TEXT, linkUrl)
+                                    putExtra(Intent.EXTRA_TEXT, link.link)
                                     type = "text/plain"
                                 }
                                 val shareIntent = Intent.createChooser(sendIntent, null)
@@ -211,12 +202,14 @@ fun HomeScreen(navController: NavController, currentUser: User) {
                     }
                 }
             }
+        }
 
-            Spacer(modifier = Modifier.height(8.dp))
+
+        Spacer(modifier = Modifier.height(8.dp))
         }
     }
-}
 
+/*
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
@@ -234,3 +227,4 @@ fun HomeScreenPreview() {
         HomeScreen(navController = rememberNavController(), currentUser = dummyUser)
     }
 }
+*/

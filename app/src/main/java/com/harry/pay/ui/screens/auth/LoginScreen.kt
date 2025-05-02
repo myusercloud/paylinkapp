@@ -14,162 +14,131 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.harry.pay.R
-import com.harry.pay.navigation.ROUT_HOME
-import com.harry.pay.navigation.ROUT_LOGIN
-import com.harry.pay.ui.theme.FintechTeal
 import com.harry.pay.ui.theme.FintechLightBackground
+import com.harry.pay.ui.theme.FintechTeal
 
 @Composable
 fun LoginScreen(
     onLogin: (String, String) -> Unit,
     navController: NavHostController,
-    onSuccess: () -> Unit
+    onSuccess: () -> Unit,
+    loginSuccess: Boolean,
+    error: String?,
+    isLoading: Boolean
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var errorMessage by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false) }
+
+    // Navigate automatically after successful login
+    LaunchedEffect(loginSuccess) {
+        if (loginSuccess) onSuccess()
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(FintechLightBackground),  // Set background color
+            .background(FintechLightBackground)
+            .padding(horizontal = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // App Logo
+        // Optional Logo + Title
         Image(
-            painter = painterResource(id = R.drawable.img), // Replace with your actual logo resource
+            painter = painterResource(id = R.drawable.ic_launcher_foreground),
             contentDescription = "App Logo",
             modifier = Modifier
-                .size(110.dp)
-                .padding(bottom = 24.dp)
+                .size(100.dp)
+                .padding(bottom = 16.dp)
         )
 
-        Text(
-            text = "Welcome to PayLink",
-            style = MaterialTheme.typography.headlineMedium,
-            color = FintechTeal,
-            modifier = Modifier.padding(bottom = 32.dp)
-        )
+        Text("Welcome Back", style = MaterialTheme.typography.titleLarge, color = FintechTeal)
 
-        // Username field
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Username
         OutlinedTextField(
             value = username,
             onValueChange = { username = it },
             label = { Text("Username") },
-            leadingIcon = { Icon(imageVector = Icons.Default.Person, contentDescription = null) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 5.dp),
-            shape = RoundedCornerShape(12.dp),
+            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
+            modifier = Modifier.fillMaxWidth(),
             singleLine = true,
+            shape = RoundedCornerShape(12.dp),
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = FintechTeal,
-                unfocusedIndicatorColor = Color.Gray,
-                focusedLabelColor = FintechTeal,
-                unfocusedLabelColor = Color.Gray
+                unfocusedIndicatorColor = Color.Gray
             )
         )
 
-        // Password field
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Password
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
             label = { Text("Password") },
-            leadingIcon = { Icon(imageVector = Icons.Default.Lock, contentDescription = null) },
+            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
             visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 5.dp),
-            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier.fillMaxWidth(),
             singleLine = true,
+            shape = RoundedCornerShape(12.dp),
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = FintechTeal,
-                unfocusedIndicatorColor = Color.Gray,
-                focusedLabelColor = FintechTeal,
-                unfocusedLabelColor = Color.Gray
+                unfocusedIndicatorColor = Color.Gray
             )
         )
 
-        // Error message
-        if (errorMessage.isNotEmpty()) {
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Show error if any
+        if (!error.isNullOrBlank()) {
             Text(
-                text = errorMessage,
+                text = error,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall.copy(fontSize = 14.sp),
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = 8.dp)
             )
         }
 
         // Login button
-        Box(
+        Button(
+            onClick = {
+                val trimmedUsername = username.trim()
+                val trimmedPassword = password.trim()
+                if (trimmedUsername.isNotBlank() && trimmedPassword.isNotBlank()) {
+                    println("Login button clicked with $username / $password")
+                    onLogin(trimmedUsername, trimmedPassword)
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 5.dp)
+                .height(48.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = FintechTeal),
+            enabled = !isLoading
         ) {
-            Button(
-                onClick = {
-                    if (username.isBlank() || password.isBlank()) {
-                        errorMessage = "Please fill in both fields."
-                    } else {
-                        isLoading = true
-                        errorMessage = ""
-                        onLogin(username, password)
-                        isLoading = false
-                        onSuccess()
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = FintechTeal),
-                enabled = !isLoading
-            ) {
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        strokeWidth = 2.dp,
-                        color = Color.White
-                    )
-                } else {
-                    Text("Login", color = Color.White)
-                }
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    strokeWidth = 2.dp,
+                    color = Color.White
+                )
+            } else {
+                Text("Login", color = Color.White)
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Sign up link
+        // Navigation to Register
         TextButton(onClick = {
             navController.navigate("sign_up_screen")
         }) {
-            Text(
-                text = "Don't have an account? Sign up",
-                color = FintechTeal
-            )
+            Text("Don't have an account? Sign up", color = FintechTeal)
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewLoginScreen() {
-    val navController = rememberNavController()
-    LoginScreen(
-        onLogin = { _, _ -> },
-        navController = navController,
-        onSuccess = {
-            navController.navigate(ROUT_HOME) {
-                popUpTo(ROUT_LOGIN) { inclusive = true }
-            }
-        }
-    )
 }

@@ -10,84 +10,84 @@ import kotlinx.coroutines.launch
 
 class AuthViewModel(private val repository: UserRepository) : ViewModel() {
 
-    // User state with loading and error states
     private val _user = MutableStateFlow<User?>(null)
     val user: StateFlow<User?> = _user
 
-    private val _isLoading = MutableStateFlow(false) // Track loading state
-    val isLoading: StateFlow<Boolean> = _isLoading
+    private val _loginSuccess = MutableStateFlow(false)
+    val loginSuccess: StateFlow<Boolean> = _loginSuccess
 
-    private val _error = MutableStateFlow<String?>(null) // Track errors
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> =  _isLoading
+
+    private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
-    init {
-        // Fetch user immediately if needed, for example, if you need to persist login session
-        // fetchUserById(id) or you could use any session management.
+    /**
+     * Registers a new user
+     */
+    fun registerUser(user: User) = safeLaunch {
+        repository.registerUser(user)
     }
 
-    fun registerUser(user: User) {
-        viewModelScope.launch {
-            try {
-                _isLoading.value = true
-                repository.registerUser(user)
-                _isLoading.value = false
-            } catch (e: Exception) {
-                _isLoading.value = false
-                _error.value = e.message // Set error message
-            }
+    /**
+     * Attempts login and updates current user state
+     */
+    fun loginUser(name: String, password: String) = safeLaunch {
+        _error.value = null
+        _loginSuccess.value = false
+
+        val user = repository.loginUser(name, password)
+        if (user != null) {
+            _user.value = user
+            _loginSuccess.value = true
+        } else {
+            _error.value = "Invalid username or password"
         }
     }
 
-    fun loginUser(name: String, password: String) {
-        viewModelScope.launch {
-            try {
-                _isLoading.value = true
-                _user.value = repository.loginUser(name, password)
-                _isLoading.value = false
-            } catch (e: Exception) {
-                _isLoading.value = false
-                _error.value = e.message // Set error message
-            }
-        }
+
+    /**
+     * Updates current user and state
+     */
+    fun updateUser(user: User) = safeLaunch {
+        repository.updateUser(user)
+        _user.value = user
     }
 
-    fun updateUser(user: User) {
-        viewModelScope.launch {
-            try {
-                _isLoading.value = true
-                repository.updateUser(user)
-                _user.value = user
-                _isLoading.value = false
-            } catch (e: Exception) {
-                _isLoading.value = false
-                _error.value = e.message
-            }
-        }
+    /**
+     * Deletes the current user and clears state
+     */
+    fun deleteUser(user: User) = safeLaunch {
+        repository.deleteUser(user)
+        _user.value = null
     }
 
-    fun deleteUser(user: User) {
-        viewModelScope.launch {
-            try {
-                _isLoading.value = true
-                repository.deleteUser(user)
-                _user.value = null
-                _isLoading.value = false
-            } catch (e: Exception) {
-                _isLoading.value = false
-                _error.value = e.message
-            }
-        }
+    /**
+     * Fetches a user by ID and updates state
+     */
+    fun fetchUserById(id: Int) = safeLaunch {
+        _user.value = repository.getUserById(id)
     }
 
-    fun fetchUserById(id: Int) {
+    /**
+     * Clears current error state
+     */
+    fun clearError() {
+        _error.value = null
+    }
+
+    /**
+     * Launches a coroutine with loading and error handling
+     */
+    private fun safeLaunch(block: suspend () -> Unit) {
         viewModelScope.launch {
+            _isLoading.value = true
             try {
-                _isLoading.value = true
-                _user.value = repository.getUserById(id)
-                _isLoading.value = false
+                block()
             } catch (e: Exception) {
+                _error.value = e.message ?: "An unknown error occurred"
+            } finally {
                 _isLoading.value = false
-                _error.value = e.message
             }
         }
     }

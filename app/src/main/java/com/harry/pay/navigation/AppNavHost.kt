@@ -1,9 +1,10 @@
 package com.harry.pay.navigation
 
-import android.window.SplashScreen
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -22,11 +23,16 @@ import com.harry.pay.ui.screens.scaffold.ScaffoldScreen
 import com.harry.pay.ui.screens.home.HomeScreen
 import com.harry.pay.ui.screens.link.CreateLinkScreen
 import com.harry.pay.ui.screens.link.EditLinkScreen
+import com.harry.pay.ui.screens.splash.PayLinkSplashScreen
 import com.harry.pay.viewmodel.AuthViewModel
 import com.harry.pay.viewmodel.AuthViewModelFactory
-import com.harry.pay.model.PaymentLink
-import com.harry.pay.ui.screens.splash.PayLinkSplashScreen
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.harry.pay.model.PaymentLink
 
 @Composable
 fun AppNavHost(
@@ -37,16 +43,14 @@ fun AppNavHost(
     val context = LocalContext.current
     val appDatabase = UserDatabase.getDatabase(context)
     val authRepository = UserRepository(appDatabase.userDao())
-    val authViewModelFactory = AuthViewModelFactory(authRepository)
+    val authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory(authRepository))
 
     NavHost(
         navController = navController,
         startDestination = startDestination,
         modifier = modifier
     ) {
-        // Register
         composable(ROUT_REGISTER) {
-            val authViewModel: AuthViewModel = viewModel(factory = authViewModelFactory)
             RegisterScreen(authViewModel, navController) {
                 navController.navigate(ROUT_LOGIN) {
                     popUpTo(ROUT_REGISTER) { inclusive = true }
@@ -54,56 +58,57 @@ fun AppNavHost(
             }
         }
 
-        // Login
         composable(ROUT_LOGIN) {
-            val authViewModel: AuthViewModel = viewModel(factory = authViewModelFactory)
+            val loginSuccess by authViewModel.loginSuccess.collectAsState()
+            val loginError by authViewModel.error.collectAsState()
+            val isLoading by authViewModel.isLoading.collectAsState()
+
             LoginScreen(
                 onLogin = { username, password -> authViewModel.loginUser(username, password) },
                 navController = navController,
                 onSuccess = {
-                    navController.navigate(ROUT_HOME) {
+                    navController.navigate(ROUT_SCAFFOLD) {
                         popUpTo(ROUT_LOGIN) { inclusive = true }
                     }
-                }
+                },
+                loginSuccess = loginSuccess,
+                error = loginError,
+                isLoading = isLoading
             )
         }
 
-        // Home
-        composable(ROUT_HOME) {
-            val authViewModel: AuthViewModel = viewModel(factory = authViewModelFactory)
+        composable(ROUT_SCAFFOLD) {
             val userState by authViewModel.user.collectAsState()
-            val isLoading by authViewModel.isLoading.collectAsState()
-            val errorState by authViewModel.error.collectAsState()
-
-            if (isLoading) {
-                CircularProgressIndicator()
-            } else if (errorState != null) {
-                Text("Error: $errorState")
+            if (userState != null) {
+                ScaffoldScreen(navController = navController, currentUser = userState!!)
             } else {
-                userState?.let { currentUser ->
-                    HomeScreen(navController = navController, currentUser = currentUser)
-                }
+                CircularProgressIndicator()
             }
         }
 
-        // About
+        composable(ROUT_HOME) {
+            val userState by authViewModel.user.collectAsState()
+            if (userState != null) {
+                HomeScreen(navController = navController, currentUser = userState!!)
+            } else {
+                Text("Loading user...")
+            }
+        }
+
         composable(ROUT_ABOUT) {
             AboutScreen(navController)
         }
+
         composable(ROUT_SPLASH) {
             PayLinkSplashScreen(navController)
         }
 
-        // Profile (routes to AboutScreen for now)
         composable(ROUT_PROFILE) {
             AboutScreen(navController)
         }
 
-        // Edit Profile
         composable(ROUT_EDIT) {
-            val authViewModel: AuthViewModel = viewModel(factory = authViewModelFactory)
             val userState by authViewModel.user.collectAsState()
-
             userState?.let { currentUser ->
                 EditProfileScreen(
                     navController = navController,
@@ -116,16 +121,6 @@ fun AppNavHost(
             }
         }
 
-        // Scaffold wrapper
-        composable(ROUT_SCAFFOLD) {
-            val authViewModel: AuthViewModel = viewModel(factory = authViewModelFactory)
-            val userState by authViewModel.user.collectAsState()
-            userState?.let { currentUser ->
-                ScaffoldScreen(navController = navController, currentUser = currentUser)
-            }
-        }
-
-        // Create Payment Link
         composable(ROUT_CREATE_LINK) {
             val repo = PaymentLinkRepository(appDatabase.paymentLinkDao())
             val coroutineScope = rememberCoroutineScope()
@@ -141,8 +136,6 @@ fun AppNavHost(
             )
         }
 
-
-        // Edit Payment Link
         composable("edit_link/{linkId}") { backStackEntry ->
             val linkId = backStackEntry.arguments?.getString("linkId")?.toIntOrNull()
             val repo = PaymentLinkRepository(appDatabase.paymentLinkDao())

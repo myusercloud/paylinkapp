@@ -43,7 +43,7 @@ fun AppNavHost(
     val context = LocalContext.current
     val appDatabase = UserDatabase.getDatabase(context)
     val authRepository = UserRepository(appDatabase.userDao())
-    val authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory(authRepository))
+    val authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory(authRepository, context))
 
     NavHost(
         navController = navController,
@@ -88,12 +88,19 @@ fun AppNavHost(
 
         composable(ROUT_HOME) {
             val userState by authViewModel.user.collectAsState()
+            val paymentLinksState by authViewModel.paymentLinks.collectAsState()
+
             if (userState != null) {
-                HomeScreen(navController = navController, currentUser = userState!!)
+                HomeScreen(
+                    navController = navController,
+                    currentUser = userState!!,
+                    paymentLinks = paymentLinksState
+                )
             } else {
                 Text("Loading user...")
             }
         }
+
 
         composable(ROUT_ABOUT) {
             AboutScreen(navController)

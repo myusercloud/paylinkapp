@@ -240,7 +240,7 @@ fun PasswordField(
             .padding(bottom = 8.dp)
     )
 }
-
+/*
 @Preview(showSystemUi = true)
 @Composable
 fun RegisterScreenPreview() {
@@ -256,3 +256,4 @@ fun RegisterScreenPreview() {
     val dummyRepo = UserRepository(dummyDao)
     RegisterScreen(authViewModel = AuthViewModel(dummyRepo), navController = navController) {}
 }
+*/

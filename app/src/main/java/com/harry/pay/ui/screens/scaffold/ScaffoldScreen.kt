@@ -23,7 +23,7 @@ import com.harry.pay.ui.screens.home.HomeScreen
 import com.harry.pay.ui.screens.profile.ProfileScreen
 
 @Composable
-fun ScaffoldScreen(navController: NavController, currentUser: User)
+fun ScaffoldScreen(navController: NavController, currentUser: User, paymentLinks: List<PaymentLink>)
 {
     var selectedIndex by remember { mutableStateOf(0) }
 

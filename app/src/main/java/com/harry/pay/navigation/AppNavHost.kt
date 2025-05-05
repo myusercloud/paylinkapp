@@ -79,12 +79,15 @@ fun AppNavHost(
 
         composable(ROUT_SCAFFOLD) {
             val userState by authViewModel.user.collectAsState()
+            val paymentLinks by authViewModel.paymentLinks.collectAsState() // Assuming you have a paymentLinks in your ViewModel
+
             if (userState != null) {
-                ScaffoldScreen(navController = navController, currentUser = userState!!)
+                ScaffoldScreen(navController = navController, currentUser = userState!!, paymentLinks = paymentLinks)
             } else {
                 CircularProgressIndicator()
             }
         }
+
 
         composable(ROUT_HOME) {
             val userState by authViewModel.user.collectAsState()

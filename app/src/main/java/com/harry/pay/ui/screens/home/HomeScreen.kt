@@ -4,7 +4,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.system.Os.link
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -131,10 +130,8 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-
-
         Button(
-            onClick = { navController.navigate(ROUT_PROFILE)},
+            onClick = { navController.navigate(ROUT_PROFILE) },
             modifier = Modifier.fillMaxWidth(),
             shape = MaterialTheme.shapes.medium,
             colors = ButtonDefaults.buttonColors(containerColor = FintechTeal)
@@ -204,12 +201,10 @@ fun HomeScreen(
             }
         }
 
-
         Spacer(modifier = Modifier.height(8.dp))
-        }
     }
+}
 
-/*
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
@@ -220,11 +215,19 @@ fun HomeScreenPreview() {
         phoneNumber = "0712345678",
         password = "1234",
         businessName = "PayLink Ventures",
-        profilePictureUri = "https://i.pravatar.cc/150?img=3"
+        profilePictureUri = ""
+    )
+
+    val dummyLinks = listOf(
+        PaymentLink(id = 1, title = "Link1", description = "Test 1", amount = 100.0, link = "https://paylink.com/1"),
+        PaymentLink(id = 2, title = "Link2", description = "Test 2", amount = 200.0, link = "https://paylink.com/2")
     )
 
     Surface(color = Color.White) {
-        HomeScreen(navController = rememberNavController(), currentUser = dummyUser)
+        HomeScreen(
+            navController = rememberNavController(),
+            currentUser = dummyUser,
+            paymentLinks = dummyLinks
+        )
     }
 }
-*/

@@ -17,20 +17,20 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.harry.pay.model.User
+import com.harry.pay.model.PaymentLink
 import com.harry.pay.ui.screens.community.CommunityCirclesScreen
 import com.harry.pay.ui.screens.link.CreateLinkScreen
 import com.harry.pay.ui.screens.home.HomeScreen
 import com.harry.pay.ui.screens.profile.ProfileScreen
 
 @Composable
-fun ScaffoldScreen(navController: NavController, currentUser: User, paymentLinks: List<PaymentLink>)
-{
+fun ScaffoldScreen(navController: NavController, currentUser: User, paymentLinks: List<PaymentLink>) {
     var selectedIndex by remember { mutableStateOf(0) }
 
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /* TODO: Navigate to Create Link screen */ },
+                onClick = { navController.navigate("create_link") }, // Navigate to the Create Link screen
                 containerColor = MaterialTheme.colorScheme.onSecondary
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
@@ -75,7 +75,7 @@ fun ScaffoldScreen(navController: NavController, currentUser: User, paymentLinks
                     .fillMaxSize()
             ) {
                 when (selectedIndex) {
-                    0 -> HomeScreen(navController = navController, currentUser = currentUser)
+                    0 -> HomeScreen(navController = navController, currentUser = currentUser, paymentLinks = paymentLinks)
                     1 -> CreateLinkScreen(
                         navController = navController,
                         onCreate = { paymentLink ->
@@ -86,7 +86,6 @@ fun ScaffoldScreen(navController: NavController, currentUser: User, paymentLinks
                     )
                     2 -> CommunityCirclesScreen(navController = navController)
                     3 -> ProfileScreen(navController = navController, userId = 1)
-
                 }
             }
         }
@@ -105,8 +104,6 @@ fun CenteredText(text: String) {
         )
     }
 }
-
-
 
 @Composable
 fun FilterChip(text: String) {
@@ -151,5 +148,10 @@ fun ScaffoldScreenPreview() {
         profilePictureUri = ""
     )
 
-    ScaffoldScreen(navController = rememberNavController(), currentUser = dummyUser)
+    val dummyLinks = listOf(
+        PaymentLink(id = 1, title = "Link1", description = "Test 1", amount = 100.0, link = "https://paylink.com/1"),
+        PaymentLink(id = 2, title = "Link2", description = "Test 2", amount = 200.0, link = "https://paylink.com/2")
+    )
+
+    ScaffoldScreen(navController = rememberNavController(), currentUser = dummyUser, paymentLinks = dummyLinks)
 }

@@ -178,9 +178,9 @@ fun HomeScreen(
                             name = "Recipient name: ${link.title}",
                             description = link.description,
                             amount = "Ksh. ${link.amount}",
-                            date = "2025-04-30", // Replace with actual date if available
-                            onEdit = { navController.navigate("edit_link/${link.title}") },
-                            onDelete = { println("Delete link: ${link.title}") },
+                            date = "2025-04-30", // Replace with actual date if needed
+                            onEdit = { navController.navigate("edit_link/${link.id}") },
+                            onDelete = { println("Delete link: ${link.id}") },
                             onCopy = {
                                 val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                 val clip = ClipData.newPlainText("Copied Link", link.link)

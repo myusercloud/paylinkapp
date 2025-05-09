@@ -1,16 +1,14 @@
+
 package com.harry.pay.ui.screens.profile
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -46,6 +44,7 @@ fun ProfileScreen(navController: NavController, userId: Int) {
 
     val user by profileViewModel.userProfile.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(userId) {
         profileViewModel.loadUserProfile(userId)
@@ -134,7 +133,7 @@ fun ProfileScreen(navController: NavController, userId: Int) {
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Button(
-                    onClick = { navController.navigate(ROUT_LOGIN) },
+                    onClick = { showLogoutDialog = true },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8D5553)),
                     shape = MaterialTheme.shapes.medium
@@ -184,13 +183,37 @@ fun ProfileScreen(navController: NavController, userId: Int) {
                 }
             )
         }
+
+        if (showLogoutDialog) {
+            AlertDialog(
+                onDismissRequest = { showLogoutDialog = false },
+                title = { Text("Log Out") },
+                text = { Text("Do you really want to log out of your account?") },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showLogoutDialog = false
+                            navController.navigate(ROUT_LOGIN) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        }
+                    ) {
+                        Text("Log Out", color = Color.Red)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showLogoutDialog = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
     } else {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
         }
     }
 }
-
 
 @Composable
 fun ProfileCard(
@@ -269,4 +292,3 @@ fun ProfileCardPreview() {
         )
     }
 }
-

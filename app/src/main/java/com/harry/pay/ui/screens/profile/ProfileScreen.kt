@@ -2,15 +2,12 @@ package com.harry.pay.ui.screens.profile
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -23,10 +20,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.harry.pay.R
 import com.harry.pay.repository.UserRepository
@@ -139,7 +134,7 @@ fun ProfileScreen(navController: NavController, userId: Int) {
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8D5553)),
                     shape = MaterialTheme.shapes.medium
                 ) {
-                    Icon(Icons.Default.ExitToApp, contentDescription = "Logout", tint = Color.White)
+                    Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Logout", tint = Color.White)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Log Out", color = Color.White)
                 }
@@ -163,7 +158,7 @@ fun ProfileScreen(navController: NavController, userId: Int) {
             AlertDialog(
                 onDismissRequest = { showDeleteDialog = false },
                 title = { Text("Delete Profile") },
-                text = { Text("Are you sure you want to permanently delete your profile? This cannot be undone.") },
+                text = { Text("Are you sure you want to permanently delete your profile? This action cannot be undone.") },
                 confirmButton = {
                     TextButton(
                         onClick = {
@@ -190,83 +185,3 @@ fun ProfileScreen(navController: NavController, userId: Int) {
         }
     }
 }
-
-
-@Composable
-fun ProfileCard(
-    name: String,
-    email: String,
-    phoneNumber: String,
-    businessName: String,
-    profilePictureResId: Int = R.drawable.ic_launcher_foreground // fallback image
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        shape = MaterialTheme.shapes.large,
-        elevation = CardDefaults.cardElevation(8.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Image(
-                painter = painterResource(id = profilePictureResId),
-                contentDescription = "Profile Picture",
-                modifier = Modifier
-                    .size(110.dp)
-                    .clip(CircleShape)
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = name,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            Text(
-                text = email,
-                fontSize = 14.sp,
-                color = Color.Gray
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Phone, contentDescription = "Phone")
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(phoneNumber)
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    painter = painterResource(id = R.drawable.business),
-                    contentDescription = "Business Icon"
-                )
-
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(businessName)
-            }
-        }
-    }
-}
-
-@Preview(showBackground = true, name = "Profile Card Preview")
-@Composable
-fun ProfileCardPreview() {
-    MaterialTheme {
-        ProfileCard(
-            name = "Jane Doe",
-            email = "jane.doe@example.com",
-            phoneNumber = "0712345678",
-            businessName = "Doe Ventures"
-        )
-    }
-}
-

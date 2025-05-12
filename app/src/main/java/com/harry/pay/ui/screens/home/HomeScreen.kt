@@ -11,7 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -19,11 +19,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.SubcomposeAsyncImage
 import com.harry.pay.R
 import com.harry.pay.model.PaymentLink
@@ -32,6 +30,7 @@ import com.harry.pay.navigation.ROUT_CREATE_LINK
 import com.harry.pay.navigation.ROUT_PROFILE
 import com.harry.pay.ui.screens.scaffold.FilterChip
 import com.harry.pay.ui.screens.scaffold.LinkItem
+import com.harry.pay.viewmodel.PaymentLinkViewModel
 
 val FintechTeal = Color(0xFF039D86)
 val FintechDarkTeal = Color(0xFF00695C)
@@ -40,9 +39,11 @@ val FintechDarkTeal = Color(0xFF00695C)
 fun HomeScreen(
     navController: NavController,
     currentUser: User,
-    paymentLinks: List<PaymentLink>
+    paymentLinks: List<PaymentLink>,
+    linkViewModel: PaymentLinkViewModel
 ) {
     val context = LocalContext.current
+    var linkToDelete by remember { mutableStateOf<PaymentLink?>(null) }
 
     Column(
         modifier = Modifier
@@ -180,7 +181,7 @@ fun HomeScreen(
                             amount = "Ksh. ${link.amount}",
                             date = "2025-04-30", // Replace with actual date if needed
                             onEdit = { navController.navigate("edit_link/${link.id}") },
-                            onDelete = { println("Delete link: ${link.id}") },
+                            onDelete = { linkToDelete = link },
                             onCopy = {
                                 val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                 val clip = ClipData.newPlainText("Copied Link", link.link)
@@ -203,31 +204,30 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
     }
-}
 
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenPreview() {
-    val dummyUser = User(
-        id = 1,
-        name = "Harry",
-        email = "harry@example.com",
-        phoneNumber = "0712345678",
-        password = "1234",
-        businessName = "PayLink Ventures",
-        profilePictureUri = ""
-    )
-
-    val dummyLinks = listOf(
-        PaymentLink(id = 1, title = "Link1", description = "Test 1", amount = 100.0, link = "https://paylink.com/1"),
-        PaymentLink(id = 2, title = "Link2", description = "Test 2", amount = 200.0, link = "https://paylink.com/2")
-    )
-
-    Surface(color = Color.White) {
-        HomeScreen(
-            navController = rememberNavController(),
-            currentUser = dummyUser,
-            paymentLinks = dummyLinks
+    // Confirmation Dialog
+    if (linkToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { linkToDelete = null },
+            title = { Text("Delete Link") },
+            text = {
+                Text("Are you sure you want to delete this payment link? This action cannot be undone.")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        linkViewModel.deleteLink(linkToDelete!!)
+                        linkToDelete = null
+                    }
+                ) {
+                    Text("Delete", color = Color.Red)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { linkToDelete = null }) {
+                    Text("Cancel")
+                }
+            }
         )
     }
 }

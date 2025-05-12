@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+
 class AuthViewModel(
     private val repository: UserRepository,
     context: Context // <-- Add context here
@@ -41,9 +42,12 @@ class AuthViewModel(
 
     private fun fetchPaymentLinks() {
         viewModelScope.launch {
-            _paymentLinks.value = paymentLinkRepository.getAll()
+            paymentLinkRepository.allLinks.collect { links ->
+                _paymentLinks.value = links
+            }
         }
     }
+
 
     fun registerUser(user: User) = safeLaunch {
         repository.registerUser(user)

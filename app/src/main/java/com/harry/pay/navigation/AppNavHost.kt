@@ -1,10 +1,8 @@
 package com.harry.pay.navigation
 
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import PayLinkSplashScreen
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -13,26 +11,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.harry.pay.data.UserDatabase
-import com.harry.pay.repository.UserRepository
 import com.harry.pay.repository.PaymentLinkRepository
-import com.harry.pay.ui.screens.RegisterScreen
+import com.harry.pay.repository.UserRepository
+import com.harry.pay.ui.screens.*
 import com.harry.pay.ui.screens.about.AboutScreen
 import com.harry.pay.ui.screens.auth.LoginScreen
-import com.harry.pay.ui.screens.profile.EditProfileScreen
-import com.harry.pay.ui.screens.scaffold.ScaffoldScreen
 import com.harry.pay.ui.screens.home.HomeScreen
 import com.harry.pay.ui.screens.link.CreateLinkScreen
 import com.harry.pay.ui.screens.link.EditLinkScreen
-import com.harry.pay.ui.screens.splash.PayLinkSplashScreen
-import com.harry.pay.viewmodel.AuthViewModel
-import com.harry.pay.viewmodel.AuthViewModelFactory
+import com.harry.pay.ui.screens.profile.EditProfileScreen
+import com.harry.pay.ui.screens.scaffold.ScaffoldScreen
+import com.harry.pay.viewmodel.*
 import kotlinx.coroutines.launch
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import com.harry.pay.model.PaymentLink
 
 @Composable
 fun AppNavHost(
@@ -42,14 +32,22 @@ fun AppNavHost(
 ) {
     val context = LocalContext.current
     val appDatabase = UserDatabase.getDatabase(context)
+
     val authRepository = UserRepository(appDatabase.userDao())
+    val linkRepository = PaymentLinkRepository(appDatabase.paymentLinkDao())
+
     val authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory(authRepository, context))
+    val linkViewModel: PaymentLinkViewModel = viewModel(factory = PaymentLinkViewModelFactory(linkRepository))
 
     NavHost(
         navController = navController,
         startDestination = startDestination,
         modifier = modifier
     ) {
+        composable(ROUT_SPLASH) {
+            PayLinkSplashScreen(navController)
+        }
+
         composable(ROUT_REGISTER) {
             RegisterScreen(authViewModel, navController) {
                 navController.navigate(ROUT_LOGIN) {
@@ -79,7 +77,7 @@ fun AppNavHost(
 
         composable(ROUT_SCAFFOLD) {
             val userState by authViewModel.user.collectAsState()
-            val paymentLinks by authViewModel.paymentLinks.collectAsState() // Assuming you have a paymentLinks in your ViewModel
+            val paymentLinks by linkViewModel.links.collectAsState()
 
             if (userState != null) {
                 ScaffoldScreen(navController = navController, currentUser = userState!!, paymentLinks = paymentLinks)
@@ -88,16 +86,16 @@ fun AppNavHost(
             }
         }
 
-
         composable(ROUT_HOME) {
             val userState by authViewModel.user.collectAsState()
-            val paymentLinksState by authViewModel.paymentLinks.collectAsState()
+            val paymentLinksState by linkViewModel.links.collectAsState() // Collect links from ViewModel
 
             if (userState != null) {
                 HomeScreen(
                     navController = navController,
                     currentUser = userState!!,
-                    paymentLinks = paymentLinksState
+                    paymentLinks = paymentLinksState,
+                    linkViewModel = linkViewModel
                 )
             } else {
                 Text("Loading user...")
@@ -109,12 +107,8 @@ fun AppNavHost(
             AboutScreen(navController)
         }
 
-        composable(ROUT_SPLASH) {
-            PayLinkSplashScreen(navController)
-        }
-
         composable(ROUT_PROFILE) {
-            AboutScreen(navController)
+            AboutScreen(navController) // Replace with profile if needed
         }
 
         composable(ROUT_EDIT) {
@@ -132,46 +126,32 @@ fun AppNavHost(
         }
 
         composable(ROUT_CREATE_LINK) {
-            val repo = PaymentLinkRepository(appDatabase.paymentLinkDao())
-            val coroutineScope = rememberCoroutineScope()
-
             CreateLinkScreen(
                 navController = navController,
                 onCreate = { newLink ->
-                    coroutineScope.launch {
-                        repo.insert(newLink)
-                        navController.popBackStack()
-                    }
+                    linkViewModel.addLink(newLink) // Add link to the ViewModel
+                    navController.popBackStack() // Navigate back
                 }
             )
         }
 
+
         composable("edit_link/{linkId}") { backStackEntry ->
             val linkId = backStackEntry.arguments?.getString("linkId")?.toIntOrNull()
-            val repo = PaymentLinkRepository(appDatabase.paymentLinkDao())
-
-            var link by remember { mutableStateOf<PaymentLink?>(null) }
-            val coroutineScope = rememberCoroutineScope()
-
-            LaunchedEffect(linkId) {
-                link = repo.getAll().find { it.id == linkId }
-            }
+            val links by linkViewModel.links.collectAsState()
+            val link = links.find { it.id == linkId }
 
             link?.let {
                 EditLinkScreen(
                     navController = navController,
                     paymentLink = it,
                     onUpdate = { updated ->
-                        coroutineScope.launch {
-                            repo.update(updated)
-                            navController.popBackStack()
-                        }
+                        linkViewModel.updateLink(updated)
+                        navController.popBackStack()
                     },
                     onDelete = { toDelete ->
-                        coroutineScope.launch {
-                            repo.delete(toDelete)
-                            navController.popBackStack()
-                        }
+                        linkViewModel.deleteLink(toDelete)
+                        navController.popBackStack()
                     }
                 )
             } ?: Text("Loading payment link...")

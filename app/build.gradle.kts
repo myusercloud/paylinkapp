@@ -80,4 +80,5 @@ dependencies {
 
     //livedata
     implementation("androidx.compose.runtime:runtime-livedata:1.6.4")
+    implementation("com.airbnb.android:lottie-compose:6.1.0")
 }

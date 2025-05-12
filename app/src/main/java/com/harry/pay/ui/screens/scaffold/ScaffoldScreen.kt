@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -22,10 +23,22 @@ import com.harry.pay.ui.screens.community.CommunityCirclesScreen
 import com.harry.pay.ui.screens.link.CreateLinkScreen
 import com.harry.pay.ui.screens.home.HomeScreen
 import com.harry.pay.ui.screens.profile.ProfileScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.harry.pay.data.PaymentLinkDao
+import com.harry.pay.data.UserDatabase
+import com.harry.pay.repository.PaymentLinkRepository
+import com.harry.pay.viewmodel.PaymentLinkViewModel
+import com.harry.pay.viewmodel.PaymentLinkViewModelFactory
+
 
 @Composable
 fun ScaffoldScreen(navController: NavController, currentUser: User, paymentLinks: List<PaymentLink>) {
     var selectedIndex by remember { mutableStateOf(0) }
+    val context = LocalContext.current
+    val linkDao = UserDatabase.getDatabase(context).paymentLinkDao()
+    val linkRepository = PaymentLinkRepository(linkDao)
+    val linkViewModel: PaymentLinkViewModel = viewModel(factory = PaymentLinkViewModelFactory(linkRepository))
+
 
     Scaffold(
         floatingActionButton = {
@@ -75,7 +88,12 @@ fun ScaffoldScreen(navController: NavController, currentUser: User, paymentLinks
                     .fillMaxSize()
             ) {
                 when (selectedIndex) {
-                    0 -> HomeScreen(navController = navController, currentUser = currentUser, paymentLinks = paymentLinks)
+                    0 -> HomeScreen(
+                        navController = navController,
+                        currentUser = currentUser,
+                        paymentLinks = paymentLinks,
+                        linkViewModel = linkViewModel
+                    )
                     1 -> CreateLinkScreen(
                         navController = navController,
                         onCreate = { paymentLink ->
@@ -133,25 +151,4 @@ fun LinkItem(name: String, description: String, amount: String, date: String) {
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ScaffoldScreenPreview() {
-    val dummyUser = User(
-        id = 1,
-        name = "Harry",
-        email = "preview@example.com",
-        phoneNumber = "1234567890",
-        password = "password",
-        businessName = "Preview Co",
-        profilePictureUri = ""
-    )
-
-    val dummyLinks = listOf(
-        PaymentLink(id = 1, title = "Link1", description = "Test 1", amount = 100.0, link = "https://paylink.com/1"),
-        PaymentLink(id = 2, title = "Link2", description = "Test 2", amount = 200.0, link = "https://paylink.com/2")
-    )
-
-    ScaffoldScreen(navController = rememberNavController(), currentUser = dummyUser, paymentLinks = dummyLinks)
 }

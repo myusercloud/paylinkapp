@@ -136,7 +136,7 @@ fun LoginScreen(
 
         // Navigation to Register
         TextButton(onClick = {
-            navController.navigate("sign_up_screen")
+            navController.navigate("register")
         }) {
             Text("Don't have an account? Sign up", color = FintechTeal)
         }

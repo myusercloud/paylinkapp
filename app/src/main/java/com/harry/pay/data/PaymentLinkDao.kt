@@ -9,7 +9,7 @@ interface PaymentLinkDao {
     suspend fun insert(link: PaymentLink)
 
     @Query("SELECT * FROM payment_links ORDER BY createdAt DESC")
-    suspend fun getAll(): List<PaymentLink>
+    fun getAll(): kotlinx.coroutines.flow.Flow<List<PaymentLink>> // 🔄 Flow!
 
     @Update
     suspend fun update(link: PaymentLink)

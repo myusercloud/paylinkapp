@@ -14,33 +14,32 @@ class PaymentLinkViewModel(private val repository: PaymentLinkRepository) : View
     val links: StateFlow<List<PaymentLink>> get() = _links
 
     init {
-        loadLinks()
+        observeLinks() // Start collecting data
     }
 
-    private fun loadLinks() {
+    private fun observeLinks() {
         viewModelScope.launch {
-            _links.value = repository.getAll()
+            repository.allLinks.collect { links ->
+                _links.value = links
+            }
         }
     }
 
     fun addLink(link: PaymentLink) {
         viewModelScope.launch {
-            repository.insert(link)
-            loadLinks()
+            repository.insert(link)  // No need to manually load after adding
         }
     }
 
     fun updateLink(link: PaymentLink) {
         viewModelScope.launch {
             repository.update(link)
-            loadLinks()
         }
     }
 
     fun deleteLink(link: PaymentLink) {
         viewModelScope.launch {
             repository.delete(link)
-            loadLinks()
         }
     }
 }

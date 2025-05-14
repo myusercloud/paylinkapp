@@ -1,55 +1,85 @@
 package com.harry.pay.ui.screens.community
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.harry.pay.R
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
+
+data class CommunityCircle(
+    val name: String,
+    val description: String,
+    val iconRes: Int,
+    val tags: List<String> = listOf("Open", "Popular", "Active") // concept tags
+)
 
 @Composable
 fun CommunityCirclesScreen(navController: NavController) {
-    // Dummy data for community circles
     val communityCircles = listOf(
         CommunityCircle("Tech Innovators", "A community for tech enthusiasts to share ideas and innovations.", R.drawable.pple),
         CommunityCircle("Designers Hub", "A place for designers to collaborate and learn from each other.", R.drawable.pple),
-        CommunityCircle("Food Lovers", "Join this community to explore new recipes and culinary experiences.", R.drawable.pple),
-        CommunityCircle("Fitness Freaks", "A fitness community for workout routines, motivation, and health tips.", R.drawable.pple)
+        CommunityCircle("Food Lovers", "Explore new recipes and culinary experiences.", R.drawable.pple),
+        CommunityCircle("Fitness Freaks", "Workouts, motivation, and health tips.", R.drawable.pple)
     )
 
-    // UI layout for the community circles
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    listOf(Color(0xFF0F2027), Color(0xFF203A43), Color(0xFF2C5364))
+                )
+            )
             .padding(16.dp)
     ) {
-        Text(
-            text = "Community Circles",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+        Column(modifier = Modifier.fillMaxSize()) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(bottom = 16.dp)
+            ) {
+                IconButton(onClick = { navController.popBackStack() }) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Community Circles",
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        color = Color.White,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                )
+            }
 
-        // Handle empty list case
-        if (communityCircles.isEmpty()) {
-            Text("No community circles available", style = MaterialTheme.typography.bodyLarge)
-        } else {
-            // LazyColumn to display the list of community circles
-            LazyColumn {
+            Text(
+                "Discover and join exclusive communities tailored for creators, builders, and dreamers.",
+                style = MaterialTheme.typography.bodyMedium.copy(color = Color.LightGray),
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 items(communityCircles.size) { index ->
-                    val circle = communityCircles[index]
-                    CommunityCircleCard(communityCircle = circle, navController = navController)
+                    CommunityCircleCard(communityCircle = communityCircles[index])
                 }
             }
         }
@@ -57,55 +87,68 @@ fun CommunityCirclesScreen(navController: NavController) {
 }
 
 @Composable
-fun CommunityCircleCard(communityCircle: CommunityCircle, navController: NavController) {
-    // Card representing each community circle
+fun CommunityCircleCard(communityCircle: CommunityCircle) {
     Card(
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.08f)),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
-            .clickable {
-                // Navigate to the community details screen (you can pass more info if needed)
-                navController.navigate("community_details_screen/${communityCircle.name}")
-            },
-        shape = MaterialTheme.shapes.medium,
+            .clickable { /* future navigation */ }
+            .padding(horizontal = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Circle image for community icon
             Image(
                 painter = painterResource(id = communityCircle.iconRes),
-                contentDescription = "Community Icon",
+                contentDescription = "Circle Icon",
                 modifier = Modifier
-                    .size(50.dp)
+                    .size(60.dp)
                     .clip(CircleShape)
             )
+
             Spacer(modifier = Modifier.width(16.dp))
-            // Community circle name and description
-            Column {
+
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = communityCircle.name,
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    communityCircle.name,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = communityCircle.description,
-                    style = MaterialTheme.typography.bodyMedium,
+                    communityCircle.description,
+                    style = MaterialTheme.typography.bodySmall.copy(color = Color.LightGray),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    communityCircle.tags.forEach { tag ->
+                        AssistChip(
+                            onClick = {},
+                            label = { Text(tag, fontSize = 12.sp) },
+                            colors = AssistChipDefaults.assistChipColors(
+                                labelColor = Color.White.copy(alpha = 0.9f),
+                                containerColor = Color.White.copy(alpha = 0.1f)
+                            )
+                        )
+                    }
+                }
             }
         }
     }
 }
 
-data class CommunityCircle(val name: String, val description: String, val iconRes: Int)
-
 @Preview(showBackground = true)
 @Composable
-fun CommunityCirclesScreenPreview() {
+fun PreviewCommunityScreen() {
     CommunityCirclesScreen(navController = rememberNavController())
 }

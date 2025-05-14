@@ -1,5 +1,7 @@
 package com.harry.pay.ui.screens.scaffold
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -13,10 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.harry.pay.model.User
 import com.harry.pay.model.PaymentLink
 import com.harry.pay.ui.screens.community.CommunityCirclesScreen
@@ -24,13 +24,13 @@ import com.harry.pay.ui.screens.link.CreateLinkScreen
 import com.harry.pay.ui.screens.home.HomeScreen
 import com.harry.pay.ui.screens.profile.ProfileScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.harry.pay.data.PaymentLinkDao
 import com.harry.pay.data.UserDatabase
 import com.harry.pay.repository.PaymentLinkRepository
 import com.harry.pay.viewmodel.PaymentLinkViewModel
 import com.harry.pay.viewmodel.PaymentLinkViewModelFactory
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ScaffoldScreen(navController: NavController, currentUser: User, paymentLinks: List<PaymentLink>) {
     var selectedIndex by remember { mutableStateOf(0) }
@@ -65,10 +65,10 @@ fun ScaffoldScreen(navController: NavController, currentUser: User, paymentLinks
                     icon = { Icon(Icons.Default.Add, contentDescription = "Create") },
                     label = { Text("Create") },
                     selected = selectedIndex == 1,
-                    onClick = { selectedIndex = 1 }
+                    onClick = { navController.navigate("create_link") },
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.Default.CheckCircle, contentDescription = "Menu") },
+                    icon = { Icon(Icons.Default.CheckCircle, contentDescription = "Community") },
                     label = { Text("Menu") },
                     selected = selectedIndex == 2,
                     onClick = { selectedIndex = 2 }
@@ -124,7 +124,7 @@ fun CenteredText(text: String) {
 }
 
 @Composable
-fun FilterChip(text: String) {
+fun FilterChip(text: String, selected: Boolean, function: () -> Unit) {
     AssistChip(
         onClick = { /* TODO: Filter links */ },
         label = { Text(text) }

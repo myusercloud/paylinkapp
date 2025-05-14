@@ -16,3 +16,12 @@ val FintechLightBackground = Color(0xFFDFF6F4) // Light background color for the
 val FintechFieldFocused = Color(0xFF00796B) // Focused field color (a bit darker teal)
 val FintechIconTint = Color(0xFF26A69A) // Icon tint color (a lighter teal)
 
+
+val PrimaryGreen = Color(0xFF10B981)
+val Teal = Color(0xFF14B8A6)
+val LimeAccent = Color(0xFFA3E635)
+val BackgroundLight = Color(0xFFF9FAFB)
+val SurfaceGray = Color(0xFFE5E7EB)
+val ErrorRed = Color(0xFFEF4444)
+
+

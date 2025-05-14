@@ -44,7 +44,7 @@ fun PayLinkSplashScreen(navController: NavHostController) {
             LottieAnimation(
                 composition = composition,
                 progress = { progress },
-                modifier = Modifier.size(350.dp)
+                modifier = Modifier.size(450.dp)
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -59,9 +59,14 @@ fun PayLinkSplashScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Link. Send. Get Paid.",
+                text = "AI Link. Send. Get Paid.",
                 color = Color.White.copy(alpha = 0.8f),
                 fontSize = 16.sp
+            )
+            Text(
+                text = "Powered by Open AI",
+                color = Color.White.copy(alpha = 0.8f),
+                fontSize = 12.sp
             )
         }
     }
